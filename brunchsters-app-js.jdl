@@ -1,0 +1,85 @@
+application {
+  config {
+    baseName brunchsters,
+    packageName com.knapptown.brunchsters,
+    applicationType monolith,
+    authenticationType jwt,
+    databaseType sql,
+    devDatabaseType mysql,
+    prodDatabaseType mysql,
+    languages [en]
+  }
+  entities *
+}
+
+enum BrunchLocationStatus {
+  IN_PROGRESS, WAITING_FOR_VOTES, CALCULATING, REVIEWING, CHOSEN
+}
+
+enum BrunchTimeStatus {
+  IN_PROGRESS, WAITING_FOR_VOTES, CALCULATING, REVIEWING, CHOSEN
+}
+
+enum BrunchStatus {
+  PLANNING, WAITING_ON_LOCATION_VOTES, WAITING_ON_TIME_VOTES, REVIEWING, CHOSEN
+}
+
+entity BrunchLocation {
+  status BrunchLocationStatus required
+}
+
+entity BrunchLocationOption {
+}
+
+entity BrunchLocationOptionVote {
+}
+
+entity Location {
+  name String required
+  address1 String required
+  address2 String
+  city String required
+  state String required
+  zipCode Long min(5) max(5)
+}
+
+entity BrunchTime {
+  status BrunchTimeStatus required
+}
+
+entity BrunchTimeOption {
+}
+
+entity BrunchTimeOptionVote {
+}
+
+entity BrunchAttendee {
+  invited LocalDate required
+  attending Boolean
+}
+
+entity Brunch {
+  status BrunchStatus required
+}
+
+relationship OneToOne {
+  Brunch{user(id)} to User with builtInEntity
+  Brunch{brunchLocation} to BrunchLocation
+  Brunch{brunchTime} to BrunchTime
+
+  BrunchLocation{location} to Location
+
+  BrunchAttendee{user(id)} to User with builtInEntity
+}
+
+relationship OneToMany {
+  Brunch{brunchAttendees} to BrunchAttendee
+
+  BrunchLocation{locationOptions} to BrunchLocationOption
+
+  BrunchTime{timeOptions} to BrunchTimeOption
+}
+
+paginate all with pagination
+dto all with mapstruct
+service all with serviceImpl
